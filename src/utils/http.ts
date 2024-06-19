@@ -23,8 +23,24 @@ const httpInterceptor = {
     if (token) {
       options.header.Authorization = token
     }
-    console.log(options)
   },
 }
 uni.addInterceptor('request', httpInterceptor)
 uni.addInterceptor('uploadFile', httpInterceptor)
+interface Data<T> {
+  code: string
+  msg: string
+  result: T
+}
+
+export const http = <T>(options: UniApp.RequestOptions) => {
+  return new Promise<Data<T>>((resolve, reject) => {
+    uni.request({
+      ...options,
+      //请求成功
+      success(res) {
+        resolve(res.data as Data<T>)
+      },
+    })
+  })
+}
