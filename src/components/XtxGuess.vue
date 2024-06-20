@@ -9,11 +9,20 @@ const pageParams: Required<PageParams> = {
   pageSize: 10,
 }
 const guessList = ref<GuessItem[]>([])
+//已结束标记
+const finish = ref(false)
 const getHomeGoods = async () => {
+  if (finish.value == true) {
+    return uni.showToast({ icon: 'none', title: '没有更多数据' })
+  }
   const res = await getHomeGoodsGuess(pageParams)
   // guessList.value = res.result.items
   guessList.value.push(...res.result.items)
-  pageParams.page++
+  if (pageParams.page < res.result.pages) {
+    pageParams.page++
+  } else {
+    finish.value = true
+  }
 }
 onMounted(() => {
   getHomeGoods()
@@ -44,7 +53,7 @@ defineExpose({
       </view>
     </navigator>
   </view>
-  <view class="loading-text"> 正在加载... </view>
+  <view class="loading-text">{{ finish ? '没有更多数据啦' : ' 正在加载...' }} </view>
 </template>
 
 <style lang="scss">
