@@ -20,7 +20,6 @@ const hotList = ref<hotPaneItem[]>([])
 const getHotPanel = async () => {
   const res = await getHotPanelAPI()
   hotList.value = res.result
-  console.log(hotList.value)
 }
 
 onLoad(() => {
@@ -32,14 +31,24 @@ onLoad(() => {
 
 <template>
   <CustomNavbar />
-  <XtxSwiper :list="bannerList" />
-  <CategoryPanel :list="categoryList"></CategoryPanel>
-  <HotPanel :list="hotList" />
-  <view class="index"> </view>
+  <scroll-view class="scroll-view" scroll-y>
+    <XtxSwiper :list="bannerList" />
+    <CategoryPanel :list="categoryList"></CategoryPanel>
+    <HotPanel :list="hotList" />
+    <XtxGuess />
+    <view class="index"> </view>
+  </scroll-view>
 </template>
 
 <style lang="scss">
 page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   background-color: #f7f7f7;
+
+  .scroll-view {
+    flex: 1;
+  }
 }
 </style>
