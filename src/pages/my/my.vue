@@ -5,9 +5,9 @@ const memberStore = useMemberStore()
 const getData = async () => {
   const res = await http<string[]>({
     method: 'GET',
-    url: '/home/banner',
+    url: '',
+    header: {},
   })
-  console.log('qingqiu', res)
 }
 </script>
 

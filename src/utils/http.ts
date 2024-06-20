@@ -19,8 +19,8 @@ const httpInterceptor = {
     }
     //添加token请求头表示
     const menberStore = useMemberStore()
-    const token = menberStore.profile.token || null
-    if (token) {
+    if (menberStore.profile) {
+      const token = menberStore.profile.token || null
       options.header.Authorization = token
     }
   },
@@ -39,7 +39,27 @@ export const http = <T>(options: UniApp.RequestOptions) => {
       ...options,
       //请求成功
       success(res) {
-        resolve(res.data as Data<T>)
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(res.data as Data<T>)
+        } else if (res.statusCode == 401) {
+          const menberStore = useMemberStore()
+          menberStore.clearProfile()
+          uni.navigateTo({ url: '/pages/login/login' })
+          reject(res)
+        } else {
+          uni.showToast({
+            icon: 'none',
+            title: (res.data as Data<T>).msg || '请求错误',
+          })
+          reject(res)
+        }
+      },
+      fail(err) {
+        uni.showToast({
+          icon: 'none',
+          title: '网络错误,换个网络错误试试',
+        })
+        reject(err)
       },
     })
   })
