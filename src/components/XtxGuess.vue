@@ -3,14 +3,24 @@
 import { getHomeGoodsGuess } from '@/services/home'
 import { onMounted, ref } from 'vue'
 import type { GuessItem } from '@/types/home'
-import type { PageResult } from '@/types/global'
+import type { PageParams } from '@/types/global'
+const pageParams: Required<PageParams> = {
+  page: 1,
+  pageSize: 10,
+}
 const guessList = ref<GuessItem[]>([])
 const getHomeGoods = async () => {
-  const res = await getHomeGoodsGuess()
-  guessList.value = res.result.items
+  const res = await getHomeGoodsGuess(pageParams)
+  // guessList.value = res.result.items
+  guessList.value.push(...res.result.items)
+  pageParams.page++
 }
 onMounted(() => {
   getHomeGoods()
+})
+//暴露方法 可以让父组件通过ref调用
+defineExpose({
+  getMore: getHomeGoods,
 })
 </script>
 
