@@ -6,7 +6,7 @@ const pinia = createPinia()
 // 使用持久化存储插件
 pinia.use(persist)
 
-// 默认导出，给 main.ts 使用
+// 默认导出，给 main.ts 
 export default pinia
 
 // 模块统一导出
