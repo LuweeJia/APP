@@ -4,9 +4,10 @@ import CategoryPanel from './components/CategoryPanel.vue'
 import HotPanel from './components/HotPanel.vue'
 import { getHomeBannerAPI, getHomeCategoryAPI, getHotPanelAPI } from '@/services/home'
 import { onLoad } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import type { BannerItem, CategoryItem, hotPaneItem } from '@/types/home'
 import type { XtxGuessInstance } from '@/types/component'
+import pageSkeleton from './components/PageSkeleton.vue'
 const bannerList = ref<BannerItem[]>([])
 const getHomeBanner = async () => {
   const result = await getHomeBannerAPI()
@@ -23,6 +24,7 @@ const getHotPanel = async () => {
   hotList.value = res.result
 }
 const guessRef = ref<XtxGuessInstance>()
+
 const onScrolltolower = () => {
   guessRef.value?.getMore()
 }
@@ -32,13 +34,21 @@ const onRefresherrefresh = async () => {
   // await  getHomeBanner()
   // await  getHomeCategory()
   // await  getHotPanel()
+  guessRef.value?.resetData() //重置猜你喜欢数据
   await Promise.all([getHomeBanner(), getHomeCategory(), getHotPanel()])
   isTriggered.value = false
 }
-onLoad(() => {
-  getHomeBanner()
-  getHomeCategory()
-  getHotPanel()
+const isLoading = ref(false)
+onLoad(async () => {
+  isLoading.value = true
+  // getHomeBanner()
+  // getHomeCategory()
+  // getHotPanel()
+  await Promise.all([getHomeBanner(), getHomeCategory(), getHotPanel()])
+  isLoading.value = false
+})
+onMounted(() => {
+  console.log(guessRef.value?.pageParams, '123')
 })
 </script>
 
@@ -53,11 +63,13 @@ onLoad(() => {
     scroll-y
     @scrolltolower="onScrolltolower"
   >
-    <XtxSwiper :list="bannerList" />
-    <CategoryPanel :list="categoryList"></CategoryPanel>
-    <HotPanel :list="hotList" />
-    <XtxGuess ref="guessRef" />
-    <view class="index"> </view>
+    <pageSkeleton v-if="isLoading"></pageSkeleton>
+    <template v-else>
+      <XtxSwiper :list="bannerList" />
+      <CategoryPanel :list="categoryList"></CategoryPanel>
+      <HotPanel :list="hotList" />
+      <XtxGuess ref="guessRef" />
+    </template>
   </scroll-view>
 </template>
 

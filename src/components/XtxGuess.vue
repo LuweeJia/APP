@@ -24,12 +24,18 @@ const getHomeGoods = async () => {
     finish.value = true
   }
 }
+const resetData = () => {
+  pageParams.page = 1
+  guessList.value = []
+}
 onMounted(() => {
   getHomeGoods()
 })
 //暴露方法 可以让父组件通过ref调用
 defineExpose({
   getMore: getHomeGoods,
+  resetData,
+  pageParams,
 })
 </script>
 
