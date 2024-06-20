@@ -17,3 +17,13 @@ export type hotPaneItem = {
   target: string
   type: number
 }
+/** 猜你喜欢-商品类型 */
+export type GuessItem = {
+  desc: string
+  discount: number
+  id: string
+  name: string
+  orderNum: number
+  picture: string
+  price: number
+}

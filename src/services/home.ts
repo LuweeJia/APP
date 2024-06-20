@@ -1,5 +1,6 @@
 import { http } from '@/utils/http'
-import type { BannerItem, CategoryItem, hotPaneItem } from '@/types/home'
+import type { BannerItem, CategoryItem, hotPaneItem, GuessItem } from '@/types/home'
+import type { PageResult } from '@/types/global'
 export const getHomeBannerAPI = (distributionSite = 1) => {
   return http<BannerItem[]>({
     url: '/home/banner',
@@ -19,5 +20,11 @@ export const getHotPanelAPI = () => {
   return http<hotPaneItem[]>({
     url: '/home/hot/mutli',
     method: 'GET',
+  })
+}
+export const getHomeGoodsGuess = () => {
+  return http<PageResult<GuessItem>>({
+    method: 'GET',
+    url: '/home/goods/guessLike',
   })
 }
