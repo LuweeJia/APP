@@ -6,6 +6,7 @@ import { getHomeBannerAPI, getHomeCategoryAPI, getHotPanelAPI } from '@/services
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import type { BannerItem, CategoryItem, hotPaneItem } from '@/types/home'
+import type { XtxGuessInstance } from '@/types/component'
 const bannerList = ref<BannerItem[]>([])
 const getHomeBanner = async () => {
   const result = await getHomeBannerAPI()
@@ -21,7 +22,10 @@ const getHotPanel = async () => {
   const res = await getHotPanelAPI()
   hotList.value = res.result
 }
-
+const guessRef = ref<XtxGuessInstance>()
+const onScrolltolower = () => {
+  guessRef.value?.getMore()
+}
 onLoad(() => {
   getHomeBanner()
   getHomeCategory()
@@ -31,11 +35,11 @@ onLoad(() => {
 
 <template>
   <CustomNavbar />
-  <scroll-view class="scroll-view" scroll-y>
+  <scroll-view class="scroll-view" scroll-y @scrolltolower="onScrolltolower">
     <XtxSwiper :list="bannerList" />
     <CategoryPanel :list="categoryList"></CategoryPanel>
     <HotPanel :list="hotList" />
-    <XtxGuess />
+    <XtxGuess ref="guessRef" />
     <view class="index"> </view>
   </scroll-view>
 </template>

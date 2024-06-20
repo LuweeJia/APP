@@ -11,3 +11,7 @@ export type PageResult<T> = {
   /** 每页条数 */
   pageSize: number
 }
+export type PageParams = {
+  page?: number
+  pageSize?: number
+}
