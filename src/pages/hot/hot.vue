@@ -28,6 +28,22 @@ const getHotRecomend = async () => {
   subTypes.value = res.result.subTypes
   console.log(subTypes.value)
 }
+//滚动到底部加载相应选项卡的数据
+const onScrolltolower = async () => {
+  //获取当前选项 里面有需要的参数
+  const currentSubType = subTypes.value[activeIndex.value]
+  //当前页码累加
+  currentSubType.goodsItems.page++
+  const res = await getHotRecomendAPI(curUrlMap!.url, {
+    subType: currentSubType.id,
+    page: currentSubType.goodsItems.page,
+    pageSize: currentSubType.goodsItems.pageSize,
+  })
+  //新的列表选项
+  const newsubTypes = res.result.subTypes[activeIndex.value]
+  //数组追加
+  currentSubType.goodsItems.items.push(...newsubTypes.goodsItems.items)
+}
 onLoad(() => {
   getHotRecomend()
 })
@@ -57,6 +73,7 @@ onLoad(() => {
       v-show="activeIndex === index"
       scroll-y
       class="scroll-view"
+      @scrolltolower="onScrolltolower"
     >
       <view class="goods">
         <navigator
