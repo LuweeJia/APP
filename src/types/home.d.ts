@@ -1,3 +1,4 @@
+import type { GoodsItem } from './global'
 export type BannerItem = {
   hrefUrl: string
   id: string
@@ -18,12 +19,4 @@ export type hotPaneItem = {
   type: number
 }
 /** 猜你喜欢-商品类型 */
-export type GuessItem = {
-  desc: string
-  discount: number
-  id: string
-  name: string
-  orderNum: number
-  picture: string
-  price: number
-}
+export type GuessItem = GoodsItem
