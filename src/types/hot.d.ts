@@ -2,7 +2,7 @@ import type { PageResult, GoodsItem } from './global'
 export type SubTypeItem = {
   id: string
   title: string
-  goodsItem: PageResult<GoodsItem>
+  goodsItems: PageResult<GoodsItem>
 }
 export type HotResult = {
   bannerPicture: stirng
