@@ -5,6 +5,7 @@ type HotParams = PageParams & { subType?: string }
 export const getHotRecomendAPI = (url: string, data?: HotParams) => {
   return http<HotResult>({
     method: 'GET',
-    url: url,
+    url,
+    data,
   })
 }
