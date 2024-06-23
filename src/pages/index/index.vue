@@ -6,8 +6,8 @@ import { getHomeBannerAPI, getHomeCategoryAPI, getHotPanelAPI } from '@/services
 import { onLoad } from '@dcloudio/uni-app'
 import { onMounted, ref } from 'vue'
 import type { BannerItem, CategoryItem, hotPaneItem } from '@/types/home'
-import type { XtxGuessInstance } from '@/types/component'
 import pageSkeleton from './components/PageSkeleton.vue'
+import { useGuessList } from '@/composables/index'
 const bannerList = ref<BannerItem[]>([])
 const getHomeBanner = async () => {
   const result = await getHomeBannerAPI()
@@ -23,11 +23,9 @@ const getHotPanel = async () => {
   const res = await getHotPanelAPI()
   hotList.value = res.result
 }
-const guessRef = ref<XtxGuessInstance>()
+//从组合式函数拿到相应的数据 猜你喜欢
+const { guessRef, onScrolltolower } = useGuessList()
 
-const onScrolltolower = () => {
-  guessRef.value?.getMore()
-}
 const isTriggered = ref<boolean>(false)
 const onRefresherrefresh = async () => {
   isTriggered.value = true
