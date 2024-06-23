@@ -1,4 +1,3 @@
-// src/pages/goods/goods.vue
 <script setup lang="ts">
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -8,7 +7,9 @@ import { onLoad } from '@dcloudio/uni-app'
 // })
 import { getGoodsByIdAPI } from '@/services/goods'
 import type { GoodsResult } from '@/types/goods'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
+import AddressPanel from './components/AddressPanel.vue'
+import ServicePanel from './components/ServicePanel.vue'
 const query = defineProps<{
   id: string
 }>()
@@ -28,6 +29,17 @@ onLoad(async () => {
   const res = await getGoodsByIdAPI(query.id)
   goods.value = res.result
 })
+//这里保存的是弹出层的ref vue3组件挂在完毕之后会自动将实例绑定到popup上
+const popup = ref<{
+  open: (type?: UniHelper.UniPopupType) => void
+  close: () => void
+}>()
+const popupName = ref<'address' | 'service'>()
+const openPopup = (name: typeof popupName.value) => {
+  //修改弹出层名称
+  popupName.value = name
+  popup.value?.open('bottom')
+}
 </script>
 
 <template>
@@ -64,11 +76,11 @@ onLoad(async () => {
           <text class="label">选择</text>
           <text class="text ellipsis"> 请选择商品规格 </text>
         </view>
-        <view class="item arrow">
+        <view class="item arrow" @tap="openPopup('address')">
           <text class="label">送至</text>
           <text class="text ellipsis"> 请选择收获地址 </text>
         </view>
-        <view class="item arrow">
+        <view class="item arrow" @tap="openPopup('service')">
           <text class="label">服务</text>
           <text class="text ellipsis"> 无忧退 快速退款 免费包邮 </text>
         </view>
@@ -138,6 +150,12 @@ onLoad(async () => {
       <view class="buynow"> 立即购买 </view>
     </view>
   </view>
+
+  <!-- 底部弹出层 -->
+  <uni-popup ref="popup" type="bottom" background-color="#fff">
+    <AddressPanel v-if="popupName == 'address'" @close="popup?.close()" />
+    <ServicePanel v-else @close="popup?.close()" />
+  </uni-popup>
 </template>
 
 <style lang="scss">
