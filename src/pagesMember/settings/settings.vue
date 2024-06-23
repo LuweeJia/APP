@@ -1,12 +1,51 @@
 <script setup lang="ts">
-//
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useMemberStore } from '@/stores/modules/member'
+const memberStore = useMemberStore()
+const isLogout = ref(false)
+const onLogout = () => {
+  uni.showModal({
+    content: '是否退出登录',
+    success: (res) => {
+      if (res.confirm) {
+        memberStore.clearProfile()
+        setTimeout(() => {
+          uni.showToast({
+            title: '退出登录成功',
+            icon: 'success',
+            mask: true,
+          })
+        }, 500)
+        //返回上一页
+        uni.navigateBack()
+        isLogout.value = true
+      } else {
+        isLogout.value = false
+        return
+      }
+    },
+  })
+}
+onLoad(() => {
+  if (memberStore.profile) {
+    isLogout.value = false
+  } else {
+    isLogout.value = true
+  }
+})
 </script>
 
 <template>
   <view class="viewport">
     <!-- 列表1 -->
     <view class="list" v-if="true">
-      <navigator url="/pagesMember/address/address" hover-class="none" class="item arrow">
+      <navigator
+        v-if="!isLogout"
+        url="/pagesMember/address/address"
+        hover-class="none"
+        class="item arrow"
+      >
         我的收货地址
       </navigator>
     </view>
@@ -21,8 +60,8 @@
       <navigator hover-class="none" class="item arrow" url=" ">关于小兔鲜儿</navigator>
     </view>
     <!-- 操作按钮 -->
-    <view class="action">
-      <view class="button">退出登录</view>
+    <view class="action" v-if="!isLogout">
+      <view class="button" @tap="onLogout">退出登录</view>
     </view>
   </view>
 </template>

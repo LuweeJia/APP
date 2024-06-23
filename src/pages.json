@@ -99,7 +99,7 @@
 	//分包加载规则
 	"subPackages": [
 		{
-			"root": "pagesMember",
+			"root": "pagesMember", //settings/settings页面所在的根目录
 			"pages": [
 				{
 					"path": "settings/settings",
@@ -112,7 +112,7 @@
 	],
 	"preloadRule": {
 		"pages/my/my": {
-			"network": "all",
+			"network": "all", //不管是wifi还是网络 都会预下载
 			"packages": [
 				"pagesMember"
 			]
