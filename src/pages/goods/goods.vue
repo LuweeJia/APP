@@ -13,7 +13,17 @@ const query = defineProps<{
   id: string
 }>()
 const goods = ref<GoodsResult>()
-const cuurentSwiperIndex = ref<number>()
+const cuurentSwiperIndex = ref(0)
+const onChange: UniHelper.SwiperOnChange = (ev) => {
+  cuurentSwiperIndex.value = ev.detail!.current
+}
+const onTapImage = (url: string) => {
+  //大图预览
+  uni.previewImage({
+    current: url,
+    urls: goods.value!.mainPictures,
+  })
+}
 onLoad(async () => {
   const res = await getGoodsByIdAPI(query.id)
   goods.value = res.result
@@ -26,13 +36,13 @@ onLoad(async () => {
     <view class="goods">
       <!-- 商品主图 -->
       <view class="preview">
-        <swiper circular :current="cuurentSwiperIndex">
+        <swiper circular @change="onChange">
           <swiper-item v-for="(item, index) in goods?.mainPictures" :key="index">
-            <image mode="aspectFill" :src="item" />
+            <image @tap="onTapImage(item)" mode="aspectFill" :src="item" />
           </swiper-item>
         </swiper>
         <view class="indicator">
-          <text class="current">{{ cuurentSwiperIndex }}</text>
+          <text class="current">{{ cuurentSwiperIndex + 1 }}</text>
           <text class="split">/</text>
           <text class="total">{{ goods?.mainPictures.length }}</text>
         </view>
