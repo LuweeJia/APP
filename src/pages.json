@@ -106,6 +106,14 @@
 					"style": {
 						"navigationBarTitleText": "设置"
 					}
+				},
+				{
+					"path": "profile/profile",
+					"style": {
+						"navigationBarTitleText": "个人信息",
+						"navigationStyle": "custom", //采用自定义导航栏
+						"navigationBarTextStyle": "white"
+					}
 				}
 			]
 		}
@@ -114,7 +122,7 @@
 		"pages/my/my": {
 			"network": "all", //不管是wifi还是网络 都会预下载
 			"packages": [
-				"pagesMember"
+				"pagesMember",
 			]
 		}
 	}
