@@ -1,8 +1,12 @@
-import { http } from '@/utils/http'
 import type { ProfileDetail } from '@/types/member'
-export const getMenmberProfieAPI = () => {
+import { http } from '@/utils/http'
+
+/**
+ * 获取个人信息
+ */
+export const getMemberProfileAPI = () => {
   return http<ProfileDetail>({
-    method: 'POST',
-    url: 'member/profile',
+    method: 'GET',
+    url: '/member/profile',
   })
 }
