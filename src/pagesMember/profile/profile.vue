@@ -4,9 +4,9 @@ import { ref } from 'vue'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 //获取个人信息
-import { getMemberProfileAPI } from '@/services/profile'
-import type { ProfileDetail } from '@/types/member'
-const profile = ref<ProfileDetail>()
+import { getMemberProfileAPI, putMemberProfileAPI } from '@/services/profile'
+import type { ProfileDetail, ProfileParams } from '@/types/member'
+const profile = ref<ProfileDetail>({} as ProfileDetail)
 const getMenmberProfie = async () => {
   let res = await getMemberProfileAPI()
   profile.value = res.result
@@ -50,6 +50,13 @@ const onAvatarChange = () => {
     },
   })
 }
+//修改个人信息
+const onSubmit = async () => {
+  const res = await putMemberProfileAPI({
+    nickname: profile.value!.nickname,
+  })
+  uni.showToast({ icon: 'success', title: '保存成功' })
+}
 </script>
 
 <template>
@@ -72,11 +79,11 @@ const onAvatarChange = () => {
       <view class="form-content">
         <view class="form-item">
           <text class="label">账号</text>
-          <text class="account">{{ profile?.acount }}</text>
+          <text class="account">{{ profile?.account }}</text>
         </view>
         <view class="form-item">
           <text class="label">昵称</text>
-          <input class="input" type="text" placeholder="请填写昵称" :value="profile?.nickname" />
+          <input class="input" type="text" placeholder="请填写昵称" v-model="profile!.nickname" />
         </view>
         <view class="form-item">
           <text class="label">性别</text>
@@ -117,7 +124,7 @@ const onAvatarChange = () => {
         </view>
       </view>
       <!-- 提交按钮 -->
-      <button class="form-button">保 存</button>
+      <button class="form-button" @tap="onSubmit">保 存</button>
     </view>
   </view>
 </template>

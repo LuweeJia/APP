@@ -1,5 +1,5 @@
 type BaseProfie = {
-  acount: string
+  account: string
   avatar: string
   id: number
   nickname: string
@@ -20,3 +20,11 @@ export type ProfileDetail = BaseProfie & {
   profession?: string
 }
 export type Gender = '女' | '男'
+export type ProfileParams = Pick<
+  ProfileDetail,
+  'nickname' | 'gender' | 'birthday' | 'profession'
+> & {
+  provinceCode?: string
+  cityCode?: string
+  countyCode?: string
+}
