@@ -5,7 +5,7 @@ import { ref } from 'vue'
 const { safeAreaInsets } = uni.getSystemInfoSync()
 //获取个人信息
 import { getMemberProfileAPI, putMemberProfileAPI } from '@/services/profile'
-import type { ProfileDetail, ProfileParams } from '@/types/member'
+import type { ProfileDetail, ProfileParams, Gender } from '@/types/member'
 const profile = ref<ProfileDetail>({} as ProfileDetail)
 const getMenmberProfie = async () => {
   let res = await getMemberProfileAPI()
@@ -52,10 +52,39 @@ const onAvatarChange = () => {
 }
 //修改个人信息
 const onSubmit = async () => {
+  const { nickname, gender, birthday } = profile.value
   const res = await putMemberProfileAPI({
-    nickname: profile.value!.nickname,
+    nickname,
+    gender,
+    birthday,
+    provinceCode: fullLocationCode[0],
+    cityCode: fullLocationCode[1],
+    countyCode: fullLocationCode[2],
+    profession: profile.value.profession,
   })
+  //更新store里面的昵称
+  memberStore.profile.nickname = res.result.nickname
   uni.showToast({ icon: 'success', title: '保存成功' })
+  setTimeout(() => {
+    uni.navigateBack()
+  }, 500)
+}
+//修改性别
+const onGenderChange: UniHelper.RadioGroupOnChange = (ev) => {
+  console.log(ev, '123')
+  profile.value.gender = ev.detail.value as Gender
+}
+//生日修改
+const onBirthdayChange: UniHelper.DatePickerOnChange = (ev) => {
+  profile.value.birthday = ev.detail.value
+}
+let fullLocationCode: [string, string, string] = ['', '', '']
+const onCityChange: UniHelper.RegionPickerOnChange = (ev) => {
+  //用于前端展示
+  console.log(ev.detail.value)
+  profile.value.fullLocation = ev.detail.value.join(' ')
+  //用于后端提交数据
+  fullLocationCode = ev.detail.code!
 }
 </script>
 
@@ -87,7 +116,7 @@ const onSubmit = async () => {
         </view>
         <view class="form-item">
           <text class="label">性别</text>
-          <radio-group>
+          <radio-group @change="onGenderChange">
             <label class="radio">
               <radio value="男" color="#27ba9b" :checked="profile?.gender === '男'" />
               男
@@ -101,6 +130,7 @@ const onSubmit = async () => {
         <view class="form-item">
           <text class="label">生日</text>
           <picker
+            @change="onBirthdayChange"
             class="picker"
             mode="date"
             start="1900-01-01"
@@ -113,14 +143,19 @@ const onSubmit = async () => {
         </view>
         <view class="form-item">
           <text class="label">城市</text>
-          <picker class="picker" mode="region" :value="profile?.fullLocation?.split(' ')">
+          <picker
+            @change="onCityChange"
+            class="picker"
+            mode="region"
+            :value="profile?.fullLocation?.split(' ')"
+          >
             <view v-if="profile?.fullLocation">{{ profile?.fullLocation }}</view>
             <view class="placeholder" v-else>请选择城市</view>
           </picker>
         </view>
         <view class="form-item">
           <text class="label">职业</text>
-          <input class="input" type="text" placeholder="请填写职业" :value="profile?.profession" />
+          <input class="input" type="text" placeholder="请填写职业" v-model="profile!.profession" />
         </view>
       </view>
       <!-- 提交按钮 -->
