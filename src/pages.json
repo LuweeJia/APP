@@ -114,6 +114,18 @@
 						"navigationStyle": "custom", //采用自定义导航栏
 						"navigationBarTextStyle": "white"
 					}
+				},
+				{
+					"path": "address/address",
+					"style": {
+						"navigationBarTitleText": "地址管理"
+					}
+				},
+				{
+					"path": "address-form/address-form",
+					"style": {
+						"navigationBarTitleText": ""
+					}
 				}
 			]
 		}
@@ -122,7 +134,7 @@
 		"pages/my/my": {
 			"network": "all", //不管是wifi还是网络 都会预下载
 			"packages": [
-				"pagesMember",
+				"pagesMember"
 			]
 		}
 	}
