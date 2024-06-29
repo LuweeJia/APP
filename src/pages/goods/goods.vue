@@ -26,6 +26,7 @@ const onTapImage = (url: string) => {
     urls: goods.value!.mainPictures,
   })
 }
+
 onLoad(async () => {
   const res = await getGoodsByIdAPI(query.id)
   goods.value = res.result
@@ -52,6 +53,7 @@ onLoad(async () => {
       }
     }),
   }
+  console.log(localdata.value)
 })
 //这里保存的是弹出层的ref vue3组件挂在完毕之后会自动将实例绑定到popup上
 const popup = ref<{
@@ -68,10 +70,29 @@ const openPopup = (name: typeof popupName.value) => {
 const isShowSku = ref(false)
 //商品信息
 const localdata = ref({} as SkuPopupLocaldata)
+//按钮模式
+enum SkuMode {
+  Both = 1,
+  Cart = 2,
+  Buy = 3,
+}
+const mode = ref<SkuMode>(SkuMode.Both)
+//打开SKU 修改按钮模式
+const changeSkuMode = (Type: SkuMode) => {
+  mode.value = Type
+  isShowSku.value = true
+}
 </script>
 
 <template>
-  <vk-data-goods-sku-popup v-model="isShowSku" :localdata="localdata"> </vk-data-goods-sku-popup>
+  <vk-data-goods-sku-popup
+    v-model="isShowSku"
+    :localdata="localdata"
+    :mode="mode"
+    add-cart-background-color="#ffa868"
+    buy-now-background-color="#27ba9b"
+  >
+  </vk-data-goods-sku-popup>
   <scroll-view scroll-y class="viewport">
     <!-- 基本信息 -->
     <view class="goods">
@@ -101,7 +122,7 @@ const localdata = ref({} as SkuPopupLocaldata)
 
       <!-- 操作面板 -->
       <view class="action">
-        <view class="item arrow" @tap="isShowSku = true">
+        <view class="item arrow" @tap="changeSkuMode(SkuMode.Both)">
           <text class="label">选择</text>
           <text class="text ellipsis"> 请选择商品规格 </text>
         </view>
@@ -175,8 +196,8 @@ const localdata = ref({} as SkuPopupLocaldata)
       </navigator>
     </view>
     <view class="buttons">
-      <view class="addcart"> 加入购物车 </view>
-      <view class="buynow"> 立即购买 </view>
+      <view class="addcart" @tap="changeSkuMode(SkuMode.Cart)"> 加入购物车 </view>
+      <view class="buynow" @tap="changeSkuMode(SkuMode.Buy)"> 立即购买 </view>
     </view>
   </view>
 
