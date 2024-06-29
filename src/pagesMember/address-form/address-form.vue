@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { AddressParams } from '@/types/address'
-import { postMemberAddressAPI } from '@/services/address'
+import { onShow } from '@dcloudio/uni-app'
+import {
+  postMemberAddressAPI,
+  getMemberAddressByIdAPI,
+  putMemberAddressByIdAPI,
+} from '@/services/address'
 // 表单数据
 const form = ref({
   receiver: '', // 收货人
@@ -33,14 +38,29 @@ const onSwitchChange: UniHelper.SwitchOnChange = (ev) => {
   form.value.isDefault = ev.detail.value ? 1 : 0
 }
 const onSubmit = async () => {
-  const res = await postMemberAddressAPI(form.value)
+  if (query.id) {
+    const res = await putMemberAddressByIdAPI(query.id, form.value)
+  } else {
+    const res = await postMemberAddressAPI(form.value)
+  }
+
   // 成功提示
-  uni.showToast({ icon: 'success', title: '添加成功' })
+  uni.showToast({ icon: 'success', title: query.id ? '修改成功' : '添加成功' })
   // 返回上一页
   setTimeout(() => {
     uni.navigateBack()
   }, 1000)
 }
+//获取收货地址回显
+const getMemberAddressById = async () => {
+  const res = await getMemberAddressByIdAPI(query.id!)
+  Object.assign(form.value, res.result)
+}
+onShow(() => {
+  if (query.id) {
+    getMemberAddressById()
+  }
+})
 </script>
 
 <template>
