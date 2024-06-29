@@ -21,7 +21,8 @@ const loginSuccess = (profile: LoginResult) => {
     mask: true,
   })
   setTimeout(() => {
-    uni.switchTab({ url: '/pages/my/my' })
+    // uni.switchTab({ url: '/pages/my/my' })
+    uni.navigateBack()
   }, 500)
 }
 //获取用户手机号码(企业写法)
