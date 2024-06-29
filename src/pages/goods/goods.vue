@@ -6,10 +6,11 @@ import { onLoad } from '@dcloudio/uni-app'
 //   console.log(option);
 // })
 import { getGoodsByIdAPI } from '@/services/goods'
-import type { GoodsResult } from '@/types/goods'
+import type { GoodsResult, SkuItem } from '@/types/goods'
 import { ref } from 'vue'
 import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
+import type { SkuPopupLocaldata } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 const query = defineProps<{
   id: string
 }>()
@@ -28,6 +29,29 @@ const onTapImage = (url: string) => {
 onLoad(async () => {
   const res = await getGoodsByIdAPI(query.id)
   goods.value = res.result
+  //基于后端返回的数据处理为SKU所需要的格式
+  localdata.value = {
+    _id: goods.value.id,
+    name: goods.value.name,
+    goods_thumb: goods.value.mainPictures[0],
+    spec_list: res.result.specs.map((v) => {
+      return {
+        name: v.name,
+        list: v.values,
+      }
+    }),
+    sku_list: res.result.skus.map((v) => {
+      return {
+        _id: v.id,
+        goods_id: res.result.id,
+        goods_name: res.result.name,
+        image: v.picture,
+        price: v.price * 100, //根据插件要求 价格要*100
+        stock: v.inventory,
+        sku_name_arr: v.specs.map((vv) => vv.valueName),
+      }
+    }),
+  }
 })
 //这里保存的是弹出层的ref vue3组件挂在完毕之后会自动将实例绑定到popup上
 const popup = ref<{
@@ -40,9 +64,14 @@ const openPopup = (name: typeof popupName.value) => {
   popupName.value = name
   popup.value?.open('bottom')
 }
+//是否显示SKU组件
+const isShowSku = ref(false)
+//商品信息
+const localdata = ref({} as SkuPopupLocaldata)
 </script>
 
 <template>
+  <vk-data-goods-sku-popup v-model="isShowSku" :localdata="localdata"> </vk-data-goods-sku-popup>
   <scroll-view scroll-y class="viewport">
     <!-- 基本信息 -->
     <view class="goods">
@@ -72,7 +101,7 @@ const openPopup = (name: typeof popupName.value) => {
 
       <!-- 操作面板 -->
       <view class="action">
-        <view class="item arrow">
+        <view class="item arrow" @tap="isShowSku = true">
           <text class="label">选择</text>
           <text class="text ellipsis"> 请选择商品规格 </text>
         </view>
