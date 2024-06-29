@@ -20,9 +20,13 @@ const loginSuccess = (profile: LoginResult) => {
     icon: 'success',
     mask: true,
   })
+  const pages = getCurrentPages()
   setTimeout(() => {
-    // uni.switchTab({ url: '/pages/my/my' })
-    uni.navigateBack()
+    if (pages.length > 1) {
+      uni.navigateBack()
+    } else {
+      uni.switchTab({ url: '/pages/index/index' })
+    }
   }, 500)
 }
 //获取用户手机号码(企业写法)
