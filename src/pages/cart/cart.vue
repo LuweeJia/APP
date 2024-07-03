@@ -1,9 +1,14 @@
 <script setup lang="ts">
 //
 import { useMemberStore } from '@/stores'
-import { getMemberCartAPI, deleteMemberCartAPI, putMemberCartBySkuIdAPI } from '@/services/cart'
+import {
+  getMemberCartAPI,
+  deleteMemberCartAPI,
+  putMemberCartBySkuIdAPI,
+  putMemberCartSelectedAPI,
+} from '@/services/cart'
 import { onShow } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { CartItem } from '@/types/cart'
 import type { InputNumberBoxEvent } from '@/components/vk-data-input-number-box/vk-data-input-number-box'
 //获取登录信息
@@ -36,6 +41,25 @@ const onDeleteCart = (skuId: string) => {
 const onChangeCount = async (ev: InputNumberBoxEvent) => {
   await putMemberCartBySkuIdAPI(ev.index, { count: ev.value })
 }
+const onchangeSelected = (item: CartItem) => {
+  item.selected = !item.selected
+  //后端更新数据
+  putMemberCartBySkuIdAPI(item.skuId, { selected: item.selected })
+}
+//计算属性
+const isSelectedAll = computed(() => {
+  return cartList.value.length && cartList.value.every((v) => v.selected === true)
+})
+//全选按钮
+const onchangeSelectedAll = () => {
+  //前端数据更新
+  const _isSelectedAll = !isSelectedAll.value
+  cartList.value.forEach((item) => {
+    item.selected = _isSelectedAll
+  })
+  //后端更新
+  putMemberCartSelectedAPI({ selected: _isSelectedAll })
+}
 </script>
 
 <template>
@@ -56,7 +80,11 @@ const onChangeCount = async (ev: InputNumberBoxEvent) => {
             <!-- 商品信息 -->
             <view class="goods">
               <!-- 选中状态 -->
-              <text class="checkbox" :class="{ checked: item.selected }"></text>
+              <text
+                class="checkbox"
+                @tap="onchangeSelected(item)"
+                :class="{ checked: item.selected }"
+              ></text>
               <navigator
                 :url="`/pages/goods/goods?id=${item.id}`"
                 hover-class="none"
@@ -99,7 +127,7 @@ const onChangeCount = async (ev: InputNumberBoxEvent) => {
       </view>
       <!-- 吸底工具栏 -->
       <view class="toolbar">
-        <text class="all" :class="{ checked: true }">全选</text>
+        <text class="all" @tap="onchangeSelectedAll" :class="{ checked: isSelectedAll }">全选</text>
         <text class="text">合计:</text>
         <text class="amount">100</text>
         <view class="button-grounp">
