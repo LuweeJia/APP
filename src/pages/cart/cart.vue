@@ -60,6 +60,42 @@ const onchangeSelectedAll = () => {
   //后端更新
   putMemberCartSelectedAPI({ selected: _isSelectedAll })
 }
+//总价
+const totalPrice = computed(() => {
+  let price = 0
+  cartList.value.forEach((item) => {
+    if (item.selected) price += item.nowPrice * item.count
+  })
+  return price
+})
+//总数
+const totalCount = computed(() => {
+  let total = 0
+  cartList.value.forEach((item) => {
+    if (item.selected) total += item.count
+  })
+  return total
+})
+
+//计算选中单品列表
+const selectedCartList = computed(() => {
+  return cartList.value.filter((v) => v.selected)
+})
+//计算选中总件数
+const selectedCartListCount = computed(() => {
+  return selectedCartList.value.reduce((sum, item) => sum + item.count, 0)
+})
+//选中总金额
+const selectedCartListMoney = computed(() => {
+  return selectedCartList.value
+    .reduce((sum, item) => sum + item.count * item.nowPrice, 0)
+    .toFixed(2)
+})
+const gotoPayment = () => {
+  if (selectedCartListCount.value === 0) {
+    uni.showToast({ icon: 'none', title: '请选择商品' })
+  }
+}
 </script>
 
 <template>
@@ -129,9 +165,11 @@ const onchangeSelectedAll = () => {
       <view class="toolbar">
         <text class="all" @tap="onchangeSelectedAll" :class="{ checked: isSelectedAll }">全选</text>
         <text class="text">合计:</text>
-        <text class="amount">100</text>
-        <view class="button-grounp">
-          <view class="button payment-button" :class="{ disabled: true }"> 去结算(10) </view>
+        <text class="amount">{{ selectedCartListMoney }}</text>
+        <view class="button-grounp" @tap="gotoPayment">
+          <view class="button payment-button" :class="{ disabled: selectedCartListCount === 0 }">
+            去结算({{ selectedCartListCount }})
+          </view>
         </view>
       </view>
     </template>
