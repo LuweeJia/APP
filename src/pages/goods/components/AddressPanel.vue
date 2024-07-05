@@ -1,8 +1,37 @@
 <script setup lang="ts">
 //
+import { getMemberAddressAPI } from '@/services/address'
+import { onLoad, onShow } from '@dcloudio/uni-app'
+import type { AddressParams, AddressItem } from '@/types/address'
+import { ref } from 'vue'
+import { onMounted } from 'vue'
+import { useAddressStore } from '@/stores/modules/address'
 const emit = defineEmits<{
   (event: 'close'): void
+  (event: 'getAddressInfo'): void
 }>()
+const addressList = ref<AddressItem[]>([])
+const getMemberAddress = async () => {
+  const res = await getMemberAddressAPI()
+  addressList.value = res.result
+}
+const addressStore = useAddressStore()
+const selectAddress = (item: AddressItem) => {
+  addressStore.changSelectAddress(item)
+  emit('getAddressInfo')
+  emit('close')
+}
+onMounted(() => {
+  getMemberAddress()
+})
+const createAddress = () => {
+  uni.navigateTo({
+    url: '/pagesMember/address-form/address-form',
+  })
+}
+onShow(() => {
+  getMemberAddress() //如果是从新建地址回来的情况下 则要重新获取一下数据
+})
 </script>
 
 <template>
@@ -13,24 +42,14 @@ const emit = defineEmits<{
     <view class="title">配送至</view>
     <!-- 内容 -->
     <view class="content">
-      <view class="item">
-        <view class="user">李明 13824686868</view>
-        <view class="address">北京市顺义区后沙峪地区安平北街6号院</view>
+      <view class="item" v-for="item in addressList" :key="item.id" @tap="selectAddress(item)">
+        <view class="user">{{ item.receiver }} {{ item.contact }}</view>
+        <view class="address">{{ item.fullLocation }}</view>
         <text class="icon icon-checked"></text>
-      </view>
-      <view class="item">
-        <view class="user">王东 13824686868</view>
-        <view class="address">北京市顺义区后沙峪地区安平北街6号院</view>
-        <text class="icon icon-ring"></text>
-      </view>
-      <view class="item">
-        <view class="user">张三 13824686868</view>
-        <view class="address">北京市朝阳区孙河安平北街6号院</view>
-        <text class="icon icon-ring"></text>
       </view>
     </view>
     <view class="footer">
-      <view class="button primary"> 新建地址 </view>
+      <view class="button primary" @tap="createAddress"> 新建地址 </view>
       <view v-if="false" class="button primary">确定</view>
     </view>
   </view>

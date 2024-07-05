@@ -47,7 +47,7 @@ const onChangeAddress = (item: AddressItem) => {
                 <text class="contact">{{ item.contact }}</text>
                 <text v-if="item.isDefault" class="badge">默认</text>
               </view>
-              <view class="locate">{{ item.fullLocatoin }} {{ item.address }}</view>
+              <view class="locate">{{ item.fullLocation }} {{ item.address }}</view>
               <navigator
                 @tap.stop="() => {}"
                 class="edit"

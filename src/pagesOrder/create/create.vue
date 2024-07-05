@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { getMemberOrderPreAPI } from '@/services/order'
+import { getMemberOrderPreAPI, getMemberOrderPreNowAPI } from '@/services/order'
 import { onLoad } from '@dcloudio/uni-app'
 import type { OrderPreResult } from '@/types/order'
 import { useAddressStore } from '@/stores/modules/address'
@@ -22,18 +22,30 @@ const activeDelivery = computed(() => deliveryList.value[activeIndex.value])
 const onChangeDelivery: UniHelper.SelectorPickerOnChange = (ev) => {
   activeIndex.value = ev.detail.value
 }
+//获取页面参数
+const query = defineProps<{
+  skuId?: string
+  count?: string
+}>()
 //获取订单信息
 const orderPre = ref<OrderPreResult>()
 const getMemberOrderPre = async () => {
-  const res = await getMemberOrderPreAPI()
-  orderPre.value = res.result
+  //若是从立即购买页面来的话 则获取立即购买的商品数据
+  if (query.count && query.skuId) {
+    const res = await getMemberOrderPreNowAPI({ skuId: query.skuId, count: query.skuId })
+    orderPre.value = res.result
+  } else {
+    //这里是从购物车过来的 则获取的是购物车里面已勾选的商品
+    const res = await getMemberOrderPreAPI()
+    orderPre.value = res.result
+  }
 }
 onLoad(() => {
-  getMemberOrderPre()
+  getMemberOrderPre() //获取商品、地址信息
 })
 const addressStore = useAddressStore()
 const selectAddress = computed(() => {
-  return addressStore.selectAddress || orderPre.value?.userAddresses.find((v) => v.isDefault === 1)
+  return addressStore.selectAddress || orderPre.value?.userAddresses.find((v) => v.isDefault)
 })
 </script>
 
@@ -41,13 +53,13 @@ const selectAddress = computed(() => {
   <scroll-view scroll-y class="viewport">
     <!-- 收货地址 -->
     <navigator
-      v-if="false"
+      v-if="selectAddress"
       class="shipment"
       hover-class="none"
       url="/pagesMember/address/address?from=order"
     >
       <view class="user"> {{ selectAddress?.receiver }} {{ selectAddress?.contact }} </view>
-      <view class="address"> {{ selectAddress?.fullLocatoin }} {{ selectAddress?.address }} </view>
+      <view class="address"> {{ selectAddress?.fullLocation }} {{ selectAddress?.address }} </view>
       <text class="icon icon-right"></text>
     </navigator>
     <navigator

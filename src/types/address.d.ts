@@ -17,5 +17,5 @@ export type AddressParams = {
 }
 export type AddressItem = AddressParams & {
   id: string
-  fullLocatoin: string
+  fullLocation: string
 }
