@@ -134,6 +134,17 @@
 					}
 				}
 			]
+		},
+		{
+			"root": "pagesOrder",
+			"pages": [
+				{
+					"path": "create/create",
+					"style": {
+						"navigationBarTitleText": "新建订单"
+					}
+				}
+			]
 		}
 	],
 	"preloadRule": {

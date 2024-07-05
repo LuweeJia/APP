@@ -95,6 +95,7 @@ const gotoPayment = () => {
   if (selectedCartListCount.value === 0) {
     uni.showToast({ icon: 'none', title: '请选择商品' })
   }
+  uni.navigateTo({ url: '/pagesOrder/create/create' })
 }
 </script>
 
