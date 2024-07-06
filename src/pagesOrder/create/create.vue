@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { getMemberOrderPreAPI, getMemberOrderPreNowAPI } from '@/services/order'
+import {
+  getMemberOrderPreAPI,
+  getMemberOrderPreNowAPI,
+  getMemberOrderRepurchaseByIdAPI,
+} from '@/services/order'
 import { onLoad } from '@dcloudio/uni-app'
 import type { OrderPreResult } from '@/types/order'
 import { useAddressStore } from '@/stores/modules/address'
@@ -27,6 +31,7 @@ const onChangeDelivery: UniHelper.SelectorPickerOnChange = (ev) => {
 const query = defineProps<{
   skuId?: string
   count?: string
+  orderId?: string
 }>()
 //获取订单信息
 const orderPre = ref<OrderPreResult>()
@@ -34,6 +39,9 @@ const getMemberOrderPre = async () => {
   //若是从立即购买页面来的话 则获取立即购买的商品数据
   if (query.count && query.skuId) {
     const res = await getMemberOrderPreNowAPI({ skuId: query.skuId, count: query.skuId })
+    orderPre.value = res.result
+  } else if (query.orderId) {
+    const res = await getMemberOrderRepurchaseByIdAPI(query.orderId)
     orderPre.value = res.result
   } else {
     //这里是从购物车过来的 则获取的是购物车里面已勾选的商品
