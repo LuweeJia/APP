@@ -1,5 +1,5 @@
 import { http } from '@/utils/http'
-import type { CartItem } from '@/types/cart'
+import type { CartItem, OrderCreateParams } from '@/types/cart'
 //加入购物车接口
 export const postMemberCartAPI = (data: { skuId: string; count: number }) => {
   return http({
@@ -37,6 +37,14 @@ export const putMemberCartSelectedAPI = (data: { selected: boolean }) => {
   return http({
     method: 'PUT',
     url: '/member/cart/selected',
+    data,
+  })
+}
+//提交订单
+export const postMemberOrderAPI = (data: OrderCreateParams) => {
+  return http<{ id: string }>({
+    method: 'POST',
+    url: '/member/order',
     data,
   })
 }
