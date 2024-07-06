@@ -12,7 +12,11 @@ const orderTabs = ref([
   { orderState: 4, title: '待评价' },
 ])
 //高亮下表
-const activeIndex = ref(0)
+const activeIndex = ref(orderTabs.value.findIndex((v) => v.orderState == query.type))
+//从个人中心页面进入
+const query = defineProps<{
+  type: number
+}>()
 </script>
 
 <template>
