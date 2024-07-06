@@ -11,18 +11,31 @@ const orderTabs = ref([
   { orderState: 3, title: '待收货' },
   { orderState: 4, title: '待评价' },
 ])
+//高亮下表
+const activeIndex = ref(0)
 </script>
 
 <template>
   <view class="viewport">
     <!-- tabs -->
     <view class="tabs">
-      <text class="item" v-for="item in 5" :key="item"> 待付款 </text>
+      <text
+        class="item"
+        @tap="activeIndex = index"
+        v-for="(item, index) in orderTabs"
+        :key="item.orderState"
+      >
+        {{ item.title }}
+      </text>
       <!-- 游标 -->
-      <view class="cursor" :style="{ left: 0 * 20 + '%' }"></view>
+      <view class="cursor" :style="{ left: activeIndex * 20 + '%' }"></view>
     </view>
     <!-- 滑动容器 -->
-    <swiper class="swiper">
+    <swiper
+      class="swiper"
+      @change="($event: any) => activeIndex = $event.detail.current"
+      :current="activeIndex"
+    >
       <!-- 滑动项 -->
       <swiper-item v-for="item in 5" :key="item">
         <!-- 订单列表 -->
@@ -129,7 +142,7 @@ page {
     bottom: 0;
     width: 20%;
     height: 6rpx;
-    padding: 0 50rpx;
+    // padding: 0 50rpx;
     background-color: #27ba9b;
     /* 过渡效果 */
     transition: all 0.4s;
