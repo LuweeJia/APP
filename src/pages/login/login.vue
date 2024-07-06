@@ -33,6 +33,7 @@ const loginSuccess = (profile: LoginResult) => {
 const onGetphonenumber: UniHelper.ButtonOnGetphonenumber = async (ev) => {
   const encryprtedData = ev.detail!.encryptedData!
   const iv = ev.detail!.iv!
+  console.log(code, encryprtedData, iv, '123')
   const res = await postLoginWxMinAPI({
     code,
     encryprtedData,
@@ -42,7 +43,8 @@ const onGetphonenumber: UniHelper.ButtonOnGetphonenumber = async (ev) => {
 }
 //模拟手机快捷登录 (练习用这个)
 const onPostLoginWxMinSimple = async () => {
-  const res = await postLoginWxMinSimpleAPI('13123456789')
+  // const res = await postLoginWxMinSimpleAPI('13123456789')
+  const res = await postLoginWxMinSimpleAPI('13249555156')
   loginSuccess(res.result)
 }
 </script>

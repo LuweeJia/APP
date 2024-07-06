@@ -6,6 +6,7 @@ import { getMemberOrderByIdAPI } from '@/services/order'
 import type { OrderPreResult, OrderResult } from '@/types/order'
 import { OrderState, orderStateList } from '@/services/constants'
 import PageSkeleton from './components/PageSkeleton.vue'
+import { getPayWxPayMiniPayAPI, getPayMockAPI } from '@/services/pay'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 猜你喜欢
@@ -81,6 +82,20 @@ const onTimeUp = () => {
   //修改订单状态为已取消
   order.value!.orderState = OrderState.YiQuXiao
 }
+
+//订单支付
+const onOrderPay = async () => {
+  if (import.meta.env.DEV) {
+    // 开发环境：模拟支付，修改订单状态为已支付
+    await getPayMockAPI({ orderId: query.id })
+  } else {
+    // 生产环境：获取支付参数 + 发起微信支付
+    const res = await getPayWxPayMiniPayAPI({ orderId: query.id })
+    wx.requestPayment(res.result)
+  }
+  // 关闭当前页，再跳转支付结果页
+  uni.redirectTo({ url: `/pagesOrder/payment/payment?id=${query.id}` })
+}
 </script>
 
 <template>
@@ -116,7 +131,7 @@ const onTimeUp = () => {
               @timeup="onTimeUp"
             ></uni-countdown>
           </view>
-          <view class="button">去支付</view>
+          <view class="button" @tap="onOrderPay">去支付</view>
         </template>
         <!-- 其他订单状态:展示再次购买按钮 -->
         <template v-else>
@@ -220,7 +235,7 @@ const onTimeUp = () => {
       <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
         <!-- 待付款状态:展示支付按钮 -->
         <template v-if="true">
-          <view class="button primary"> 去支付 </view>
+          <view class="button primary" @tap="onOrderPay"> 去支付 </view>
           <view class="button" @tap="popup?.open?.()"> 取消订单 </view>
         </template>
         <!-- 其他订单状态:按需展示按钮 -->
