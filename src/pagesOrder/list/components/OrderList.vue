@@ -1,105 +1,91 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import OrderList from './components/OrderList.vue'
+import { getMemberOrderAPI } from '@/services/order'
+import type { OrderListParams, OrderItem } from '@/types/order'
+import { onMounted, ref } from 'vue'
+import { OrderState, orderStateList } from '@/services/constants'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
-// tabs 数据
-const orderTabs = ref([
-  { orderState: 0, title: '全部' },
-  { orderState: 1, title: '待付款' },
-  { orderState: 2, title: '待发货' },
-  { orderState: 3, title: '待收货' },
-  { orderState: 4, title: '待评价' },
-])
-//高亮下表
-const activeIndex = ref(orderTabs.value.findIndex((v) => v.orderState == query.type))
-//从个人中心页面进入
-const query = defineProps<{
-  type: number
-  default: 2
+//uniapp上页面的参数和组建的参数都是通过defineProps获取
+const props = defineProps<{
+  orderState: number
 }>()
+//请求参数
+const queryParams: OrderListParams = {
+  page: 1,
+  pageSize: 5,
+  orderState: props.orderState,
+}
+//获取订单列表
+const orderList = ref<OrderItem[]>([])
+const getMemberOrder = async () => {
+  const res = await getMemberOrderAPI(queryParams)
+  orderList.value = res.result.items
+}
+onMounted(() => {
+  getMemberOrder()
+})
 </script>
-
 <template>
-  <view class="viewport">
-    <!-- tabs -->
-    <view class="tabs">
-      <text
-        class="item"
-        @tap="activeIndex = index"
-        v-for="(item, index) in orderTabs"
-        :key="item.orderState"
+  <scroll-view scroll-y class="orders">
+    <view class="card" v-for="item in orderList" :key="item.id">
+      <!-- 订单信息 -->
+      <view class="status">
+        <text class="date">{{ item.createTime }}</text>
+        <!-- 订单状态文字 -->
+        <text>{{ orderStateList[item.orderState].text }}</text>
+        <!-- 待评价/已完成/已取消 状态: 展示删除订单 -->
+        <text v-if="item.orderState >= OrderState.DaiPingJia" class="icon-delete"></text>
+      </view>
+      <!-- 商品信息，点击商品跳转到订单详情，不是商品详情 -->
+      <navigator
+        v-for="sku in item.skus"
+        :key="sku.id"
+        class="goods"
+        :url="`/pagesOrder/detail/detail?id=${item.id}`"
+        hover-class="none"
       >
-        {{ item.title }}
-      </text>
-      <!-- 游标 -->
-      <view class="cursor" :style="{ left: activeIndex * 20 + '%' }"></view>
+        <view class="cover">
+          <image mode="aspectFit" :src="sku.image"> </image>
+        </view>
+        <view class="meta">
+          <view class="name ellipsis">{{ sku.name }}</view>
+          <view class="type">{{ sku.attrsText }}</view>
+        </view>
+      </navigator>
+      <!-- 支付信息 -->
+      <view class="payment">
+        <text class="quantity">共{{ item.totalNum }}件商品</text>
+        <text>实付</text>
+        <text class="amount"> <text class="symbol">¥</text>{{ item.payMoney }}</text>
+      </view>
+      <!-- 订单操作按钮 -->
+      <view class="action">
+        <!-- 待付款状态：显示去支付按钮 -->
+        <template v-if="true">
+          <view class="button primary" v-if="item.orderState === OrderState.DaiFuKuan">去支付</view>
+        </template>
+        <template v-else>
+          <navigator
+            class="button secondary"
+            :url="`/pagesOrder/create/create?orderId=${item.id}`"
+            hover-class="none"
+          >
+            再次购买
+          </navigator>
+          <!-- 待收货状态: 展示确认收货 -->
+          <view v-if="item.orderState === OrderState.DaiShouHuo" class="button primary"
+            >确认收货</view
+          >
+        </template>
+      </view>
     </view>
-    <!-- 滑动容器 -->
-    <swiper
-      class="swiper"
-      @change="($event: any) => activeIndex = $event.detail.current"
-      :current="activeIndex"
-    >
-      <!-- 滑动项 -->
-      <swiper-item v-for="item in orderTabs" :key="item.title">
-        <!-- 订单列表 -->
-        <OrderList :orderState="item.orderState" />
-      </swiper-item>
-    </swiper>
-  </view>
+    <!-- 底部提示文字 -->
+    <view class="loading-text" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
+      {{ true ? '没有更多数据~' : '正在加载...' }}
+    </view>
+  </scroll-view>
 </template>
-
 <style lang="scss">
-page {
-  height: 100%;
-  overflow: hidden;
-}
-
-.viewport {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background-color: #fff;
-}
-
-// tabs
-.tabs {
-  display: flex;
-  justify-content: space-around;
-  line-height: 60rpx;
-  margin: 0 10rpx;
-  background-color: #fff;
-  box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
-  position: relative;
-  z-index: 9;
-
-  .item {
-    flex: 1;
-    text-align: center;
-    padding: 20rpx;
-    font-size: 28rpx;
-    color: #262626;
-  }
-
-  .cursor {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 20%;
-    height: 6rpx;
-    // padding: 0 50rpx;
-    background-color: #27ba9b;
-    /* 过渡效果 */
-    transition: all 0.4s;
-  }
-}
-
-// swiper
-.swiper {
-  background-color: #f7f7f8;
-}
-
 // 订单列表
 .orders {
   .card {
