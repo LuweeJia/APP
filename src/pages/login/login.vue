@@ -4,12 +4,34 @@ import { postLoginWxMinAPI, postLoginWxMinSimpleAPI } from '@/services/login'
 import { useMemberStore } from '@/stores'
 import { onLoad } from '@dcloudio/uni-app'
 import type { LoginResult } from '@/types/member'
+// #ifdef MP-WEIXIN
 //获取code 登陆凭证
 let code = ''
 onLoad(async () => {
   const res = await wx.login()
   code = res.code
 })
+
+//获取用户手机号码(企业写法)
+const onGetphonenumber: UniHelper.ButtonOnGetphonenumber = async (ev) => {
+  const encryprtedData = ev.detail!.encryptedData!
+  const iv = ev.detail!.iv!
+  console.log(code, encryprtedData, iv, '123')
+  const res = await postLoginWxMinAPI({
+    code,
+    encryprtedData,
+    iv,
+  })
+  loginSuccess(res.result)
+}
+// #endif
+
+//模拟手机快捷登录 (练习用这个)
+const onPostLoginWxMinSimple = async () => {
+  // const res = await postLoginWxMinSimpleAPI('13123456789')
+  const res = await postLoginWxMinSimpleAPI('13249555156')
+  loginSuccess(res.result)
+}
 //登陆成功回调
 const loginSuccess = (profile: LoginResult) => {
   //保存会员信息
@@ -29,24 +51,6 @@ const loginSuccess = (profile: LoginResult) => {
     }
   }, 500)
 }
-//获取用户手机号码(企业写法)
-const onGetphonenumber: UniHelper.ButtonOnGetphonenumber = async (ev) => {
-  const encryprtedData = ev.detail!.encryptedData!
-  const iv = ev.detail!.iv!
-  console.log(code, encryprtedData, iv, '123')
-  const res = await postLoginWxMinAPI({
-    code,
-    encryprtedData,
-    iv,
-  })
-  loginSuccess(res.result)
-}
-//模拟手机快捷登录 (练习用这个)
-const onPostLoginWxMinSimple = async () => {
-  // const res = await postLoginWxMinSimpleAPI('13123456789')
-  const res = await postLoginWxMinSimpleAPI('13249555156')
-  loginSuccess(res.result)
-}
 </script>
 
 <template>
@@ -58,15 +62,20 @@ const onPostLoginWxMinSimple = async () => {
     </view>
     <view class="login">
       <!-- 网页端表单登录 -->
-      <!-- <input class="input" type="text" placeholder="请输入用户名/手机号码" /> -->
-      <!-- <input class="input" type="text" password placeholder="请输入密码" /> -->
-      <!-- <button class="button phone">登录</button> -->
+      <!-- #ifdef H5 -->
+      <input class="input" type="text" placeholder="请输入用户名/手机号码" />
+      <input class="input" type="text" password placeholder="请输入密码" />
+      <button class="button phone">登录</button>
+      <!-- #endif -->
 
       <!-- 小程序端授权登录 -->
+      <!-- #ifdef MP-WEIXIN -->
       <button class="button phone" open-type="getPhoneNumber" @getphonenumber="onGetphonenumber">
         <text class="icon icon-phone"></text>
         手机号快捷登录
       </button>
+      <!-- #endif -->
+
       <view class="extra">
         <view class="caption">
           <text>其他登录方式</text>
