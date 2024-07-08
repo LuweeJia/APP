@@ -3,6 +3,7 @@ import { getMemberOrderAPI } from '@/services/order'
 import type { OrderListParams, OrderItem } from '@/types/order'
 import { onMounted, ref } from 'vue'
 import { OrderState, orderStateList } from '@/services/constants'
+import { getPayWxPayMiniPayAPI, getPayMockAPI } from '@/services/pay'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 //uniapp上页面的参数和组建的参数都是通过defineProps获取
@@ -24,6 +25,22 @@ const getMemberOrder = async () => {
 onMounted(() => {
   getMemberOrder()
 })
+//获取开发环境
+const isDev = import.meta.env.DEV
+//订单支付
+const onOrderPay = async (id: string) => {
+  if (isDev) {
+    // 开发环境：模拟支付，修改订单状态为已支付
+    await getPayMockAPI({ orderId: id })
+  } else {
+    // 生产环境：获取支付参数 + 发起微信支付
+    const res = await getPayWxPayMiniPayAPI({ orderId: id })
+    wx.requestPayment(res.result)
+  }
+  uni.showToast({ title: '支付成功' })
+  const order = orderList.value.find((v) => v.id == id)
+  order!.orderState = OrderState.DaiFaHuo
+}
 </script>
 <template>
   <scroll-view scroll-y class="orders">
@@ -62,7 +79,13 @@ onMounted(() => {
       <view class="action">
         <!-- 待付款状态：显示去支付按钮 -->
         <template v-if="true">
-          <view class="button primary" v-if="item.orderState === OrderState.DaiFuKuan">去支付</view>
+          <view
+            class="button primary"
+            v-if="item.orderState === OrderState.DaiFuKuan"
+            @tap="onOrderPay(item.id)"
+          >
+            去支付</view
+          >
         </template>
         <template v-else>
           <navigator

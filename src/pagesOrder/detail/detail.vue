@@ -43,6 +43,7 @@ const query = defineProps<{
 const pages = getCurrentPages()
 //获取当前页面实例
 const pageInstance = pages.at(-1) as any
+console.log(pages, 'pages')
 // console.log(pageInstance, 'pageIns')
 //页面渲染完毕之后才能绑定动画效果
 onReady(() => {
