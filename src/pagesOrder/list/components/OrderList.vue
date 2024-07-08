@@ -16,10 +16,14 @@ const queryParams: OrderListParams = {
   pageSize: 5,
   orderState: props.orderState,
 }
+const isFinshed = ref(true)
+const totalPages = ref<number>()
 //获取订单列表
 const orderList = ref<OrderItem[]>([])
 const getMemberOrder = async () => {
   const res = await getMemberOrderAPI(queryParams)
+  totalPages.value = res.result.pages
+  queryParams.page == totalPages.value ? (isFinshed.value = true) : (isFinshed.value = false)
   orderList.value = res.result.items
 }
 onMounted(() => {
@@ -41,9 +45,34 @@ const onOrderPay = async (id: string) => {
   const order = orderList.value.find((v) => v.id == id)
   order!.orderState = OrderState.DaiFaHuo
 }
+//开启下拉刷新
+const refreshEle = ref(false)
+const refreshEvent = async () => {
+  refreshEle.value = true
+  await getMemberOrder()
+  refreshEle.value = false
+}
+//开启滑动到底部 加载更多数据
+const onScrolltolower = async (e: any) => {
+  if (queryParams.page < totalPages.value!) {
+    isFinshed.value = false
+    queryParams.page++
+    const res = await getMemberOrderAPI(queryParams)
+    orderList.value.push(...res.result.items)
+  } else {
+    isFinshed.value = true
+  }
+}
 </script>
 <template>
-  <scroll-view scroll-y class="orders">
+  <scroll-view
+    scroll-y
+    class="orders"
+    :refresher-enabled="true"
+    @refresherrefresh="refreshEvent"
+    :refresher-triggered="refreshEle"
+    @scrolltolower="onScrolltolower"
+  >
     <view class="card" v-for="item in orderList" :key="item.id">
       <!-- 订单信息 -->
       <view class="status">
@@ -104,7 +133,7 @@ const onOrderPay = async (id: string) => {
     </view>
     <!-- 底部提示文字 -->
     <view class="loading-text" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
-      {{ true ? '没有更多数据~' : '正在加载...' }}
+      {{ isFinshed ? '没有更多数据~' : '正在加载...' }}
     </view>
   </scroll-view>
 </template>
