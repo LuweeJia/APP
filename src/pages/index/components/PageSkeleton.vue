@@ -154,7 +154,12 @@
   </view>
 </template>
 
-<style>
+<style lang="scss">
+//H5端默认开启scope 导致一些基础样式不生效
+@import '@/components/styles/XtxSwiper.scss';
+@import '@/pages/index/components/styles/CategoryPanel.scss';
+@import '@/pages/index/components/styles/HotPanel.scss';
+
 .sk-transparent {
   color: transparent !important;
 }
